@@ -20,20 +20,52 @@ function unHandledRouteHandler(req: Request, res: Response, next: NextFunction):
     * Cleaner Code
 */
 
-function globalErrorHandler(err: any, req: Request, res: Response, next: NextFunction): void {
+function globalErrorHandler(err: any, req: Request, res: Response, next: NextFunction): any {
     const statusCode = err.statusCode || 500;
 
-    res.status(statusCode).json({
-        "success": false,
-        "error": {
-            "name": err.name || "Internal Server Error",
-            'message': err.message || "Something went wrong, please try again later.",
-            "status": statusCode,
-            "statusCode": statusCode,
+    // Handle Joi validation errors
+    if (err.name === "ValidationError" && err.details) {
+        const errors = err.details.reduce((acc: Record<string, string>, { path, message, type }: any) => {
+            const field = path.join('.'); // Get the field name
+            switch (type) {
+                case 'any.required':
+                    acc[field] = `${field} is required`;
+                    break;
+                case 'string.base':
+                    acc[field] = `${field} must be a string`;
+                    break;
+                case 'any.only':
+                    acc[field] = `${field} must be one of [1, 2]`;
+                    break;
+                case 'any.unknown':
+                    acc[field] = `${field} is not allowed`;
+                    break;
+                default:
+                    acc[field] = message.replace(/['"]/g, '');
+            }
+            return acc;
+        }, {});
+
+        return res.status(statusCode).json({
+            success: false,
+            error: errors,
+            message: "Validation Error",
+        });
+    }
+
+    // Handle other errors
+    return res.status(statusCode).json({
+        success: false,
+        error: {
+            name: err.name || "Internal Server Error",
+            message: err.message || "Something went wrong, please try again later.",
+            status: statusCode,
+            statusCode: statusCode,
         },
         message: err.message ?? "An error occurred",
     });
 }
+
 
 export const successResponseHandler = (message: string, data?: any) => {
     return {

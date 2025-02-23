@@ -15,7 +15,6 @@ app.use(rateLimiter())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.get('/api/ping', (req: Request, res: Response): any => res.send('pong'))
 app.use('/api', routes)
 
 app.use(handler.unHandledRouteHandler)
