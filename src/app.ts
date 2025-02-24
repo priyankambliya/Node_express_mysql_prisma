@@ -1,11 +1,13 @@
 import "./providers/connection.provider"
-import express, { Express, Request, Response } from 'express'
-import cors from 'cors'
+import "./utils/seeder"
 
-import routes from './routes'
-import handler from "./utils/handler"
+import cors from 'cors'
+import express, { Express } from 'express'
+
 import rateLimiter from "./middlewares/rateLimiter"
+import routes from './routes'
 import corsOptions from "./utils/corsOptions"
+import handler from "./utils/handler"
 
 export const app: Express = express()
 

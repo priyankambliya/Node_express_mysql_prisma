@@ -50,13 +50,26 @@ export const use = (fn: (req: Request, res: Response, next: NextFunction) => voi
     }
 }
 
-export function getModelNameByString<T extends ModelName>(name: T) {
+function getModelNameByString<T extends ModelName>(name: T) {
     switch (name) {
         case "user":
             return prisma.user
         default:
             break;
     }
+}
+
+export async function findAlreadyExist<T extends ModelName>(modelName: T, where: any): Promise<{ id: number | null }> {
+    const model = getModelNameByString(modelName);
+    let select = { id: true }
+
+    let data = await model?.findFirst({
+        where,
+        select
+    })
+
+    if (!data?.id) { return { id: null } }
+    return { id: data.id! }
 }
 
 // ERROR HANDLER MIDDLEWARE:

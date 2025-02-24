@@ -1,12 +1,11 @@
-import { Request, Response } from "express"
+import { Request, Response } from "express";
 
-import { LoginRequestPayload, RegisterRequestPayload, VerifyCodeRequestPayload } from "../utils/interface/auth.interface"
-import commonUtils, { getModelNameByString, throwError } from "../utils/commonUtils";
-import { AppString } from "../utils/common/AppString";
-import redisClient from "../utils/redisHelper";
-import { successResponseHandler } from "../utils/handler";
 import { prisma } from "../database/connection";
-import { ModelName } from "../utils/common/AppTypes";
+import { AppString } from "../utils/common/AppString";
+import commonUtils, { findAlreadyExist, throwError } from "../utils/commonUtils";
+import { successResponseHandler } from "../utils/handler";
+import { LoginRequestPayload, RegisterRequestPayload, VerifyCodeRequestPayload } from "../utils/interface/auth.interface";
+import redisClient from "../utils/redisHelper";
 
 
 interface RedisDataPayloadInterface {
@@ -23,7 +22,7 @@ const register = async (req: Request, res: Response) => {
     let { type, role, mobile, email, password } = <RegisterRequestPayload>req.body
 
     let filter = type == 1 ? { mobile } : { email }
-    let isAlreadyUserWithSameCredential = await _helper_findAlreadyExist("user", filter)
+    let isAlreadyUserWithSameCredential = await findAlreadyExist("user", filter)
     if (isAlreadyUserWithSameCredential.id) return throwError(AppString.account_already_exist_with_given_cred, 409)
 
     let redisDataPayload: RedisDataPayloadInterface = {
@@ -129,20 +128,6 @@ const logout = async (req: Request, res: Response) => {
 
 async function _helper_saveDataInRedis(redisDataPayload: RedisDataPayloadInterface, token: string) {
     await redisClient.set(token, JSON.stringify(redisDataPayload), 'EX', 60 * 15) // 15 minutes
-}
-
-async function _helper_findAlreadyExist<T extends ModelName>(modelName: T, where: any): Promise<{ id: number }> {
-    const model = getModelNameByString(modelName);
-
-    let select = { id: true }
-
-    let data = await model?.findFirst({
-        where,
-        select
-    })
-
-    if (!data?.id) return throwError(AppString.something_went_wrong, 409)
-    return { id: data.id! }
 }
 
 export default {

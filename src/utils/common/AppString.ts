@@ -1,6 +1,9 @@
 export let AppString = {
     something_went_wrong: 'Oops,something went wrong',
 
+    super_admin_seeded: 'Super admin seeded',
+    super_admin_exist: 'Super admin already exist',
+
     code_sent: 'Code sent successfully',
     invalid_otp: 'Invalid OTP',
 
