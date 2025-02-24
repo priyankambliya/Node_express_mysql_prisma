@@ -6,6 +6,7 @@ const PASSWORD_REGEX = new RegExp(
 
 const registerValidationSchema = Joi.object({
     type: Joi.alternatives().try(Joi.string().valid('1', '2'), Joi.number().valid(1, 2)).required(),
+    role: Joi.alternatives().try(Joi.string().valid('1', '2', '3', '4'), Joi.number().valid(1, 2, 3, 4)).required(),
     mobile: Joi.string().when('type', {
         is: Joi.alternatives().try('1', 1),
         then: Joi.required(),

@@ -9,4 +9,5 @@ export let AppString = {
     invalid_password: 'Invalid password',
 
     user_logged_out: 'User logged out successfully',
+    account_already_exist_with_given_cred: "Account already exist with given credential",
 }

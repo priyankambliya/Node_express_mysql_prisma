@@ -10,8 +10,6 @@ router.post('/register', schemaValidator('registerValidation'), use(authControll
 router.post('/verify-code', use(authController.verifyCode))
 
 router.post('/manually-login', use(authController.login))
-router.post('/qr-login')
-
 router.post('/logout', use(jwtAuth), use(authController.logout))
 
 export default router

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtPayload, sign, SignOptions, verify } from "jsonwebtoken"
 import { AppString } from "./common/AppString";
+import { prisma } from "../database/connection";
+import { ModelName } from "./common/AppTypes";
 
 function generateUniqueIdByDateAndString() {
     const timestamp = Date.now().toString(36);
@@ -45,6 +47,15 @@ export async function getTokenInsideReq(req: Request) {
 export const use = (fn: (req: Request, res: Response, next: NextFunction) => void) => {
     return (req: Request, res: Response, next: NextFunction) => {
         Promise.resolve(fn(req, res, next)).catch(next)
+    }
+}
+
+export function getModelNameByString<T extends ModelName>(name: T) {
+    switch (name) {
+        case "user":
+            return prisma.user
+        default:
+            break;
     }
 }
 
