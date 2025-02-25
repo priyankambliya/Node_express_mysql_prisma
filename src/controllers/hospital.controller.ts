@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
-import { successResponseHandler } from "../utils/handler";
-import { AppString } from "../utils/common/AppString";
 import { prisma } from "../database/connection";
-import { CreateHospitalBodyPayload } from "../utils/interface/hospital.interface";
+import { AppString } from "../utils/common/AppString";
 import { throwError } from "../utils/commonUtils";
+import { successResponseHandler } from "../utils/handler";
+import { CreateHospitalBodyPayload } from "../utils/interface/hospital.interface";
 
 interface GetHospitalQueryPayload {
     hospitalId?: number
+}
+
+let commonHospitalFilterForGoodHospital = {
+    isDeleted: 0,
+    status: 1
 }
 
 // GET HOSPITAL API //

@@ -141,7 +141,6 @@ const adminLogin = async (req: Request, res: Response) => {
     return res.json(successResponseHandler(AppString.user_logged_in, { accessToken, refreshToken }))
 }
 
-
 // Logout API //
 const logout = async (req: Request, res: Response) => {
     let accessToken = req.headers['authorization']?.split(' ')[1]
@@ -156,6 +155,10 @@ const logout = async (req: Request, res: Response) => {
     let successMessage = [1, 2].includes(role) ? AppString.admin_logged_out : AppString.user_logged_out
     return res.json(successResponseHandler(successMessage))
 }
+
+// --------------------------------------------------------------------------------------------------------------------
+
+
 
 // ---------------------------- PRIVATE HELPER FUNCTION ---------------------------- //
 

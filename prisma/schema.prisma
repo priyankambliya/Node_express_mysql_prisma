@@ -20,7 +20,7 @@ model User {
   mobile         String
   password       String
   registeredWith Int // 1: Mobile, 2: Email
-  role           Int       @default(1) // 1: User, 2: Admin
+  role           Int       @default(1) //1 -> super admin 2 -> sub Admin 3 -> doctor 4 -> patient
   status         Int       @default(1) // 1: Active, 2: Inactive
   isDeleted      Int       @default(0) // 0: Not Deleted, 1: Deleted
   createdAt      DateTime  @default(now())

@@ -19,6 +19,10 @@ export let AppString = {
     admin_logged_out: 'Admin logged out successfully',
     account_already_exist_with_given_cred: "Account already exist with given credential",
 
+    // Doctor Messages
+    doctor_updated: "Doctor updated successfully",
+    already_exist_in_hospital: "doctor already exist in this hospital",
+
     // Hospital Messages
 
     hospital_fetched: 'Hospital fetched successfully',
