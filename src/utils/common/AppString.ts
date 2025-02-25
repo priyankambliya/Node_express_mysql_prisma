@@ -1,5 +1,8 @@
+import { access } from "fs";
+
 export let AppString = {
     something_went_wrong: 'Oops,something went wrong',
+    access_denied: 'Access denied',
 
     super_admin_seeded: 'Super admin seeded',
     super_admin_exist: 'Super admin already exist',

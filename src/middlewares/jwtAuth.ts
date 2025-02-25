@@ -20,7 +20,7 @@ export const jwtAuth = (role: number[]) => async (req: Request, res: Response, n
 
     // Check for user role
     let isValidRole = role.includes(user.role)
-    if (!isValidRole) return throwError(AppString.something_went_wrong, 401)
+    if (!isValidRole) return throwError(AppString.access_denied, 401)
 
     req.user = user
     next()

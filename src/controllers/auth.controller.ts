@@ -64,7 +64,8 @@ const verifyCode = async (req: Request, res: Response) => {
         data: {
             email: redisDataPayload.email,
             mobile: redisDataPayload.mobile,
-            password: hazedPassword,
+            role: redisDataPayload.role,
+            password: hazedPassword as string,
             registeredWith: redisDataPayload.type
         }
     })
