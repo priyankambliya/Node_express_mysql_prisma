@@ -14,15 +14,29 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   name           String?
-  email          String   @unique
-  mobile         String   @unique
+  email          String    @unique
+  mobile         String    @unique
   password       String
   registeredWith Int // 1: Mobile, 2: Email
-  role           Int      @default(1) // 1: User, 2: Admin
-  status         Int      @default(1) // 1: Active, 2: Inactive
-  isDeleted      Int      @default(0) // 0: Not Deleted, 1: Deleted
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  role           Int       @default(1) // 1: User, 2: Admin
+  status         Int       @default(1) // 1: Active, 2: Inactive
+  isDeleted      Int       @default(0) // 0: Not Deleted, 1: Deleted
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  Hospital       Hospital? @relation(fields: [hospitalId], references: [id])
+  hospitalId     Int?
+}
+
+model Hospital {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  doctors   User[]
+  location  Json? // Store address, latitude, and longitude
+  contact   Json? // Store email,mobile and other contact details
+  status    Int      @default(1) // 1: Working, 2: Not Working
+  isDeleted Int      @default(0) // 0: Not Deleted, 1: Deleted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -4,8 +4,9 @@ import { prisma } from "../database/connection";
 import { AppString } from "../utils/common/AppString";
 import commonUtils, { findAlreadyExist, throwError } from "../utils/commonUtils";
 import { successResponseHandler } from "../utils/handler";
-import { LoginRequestPayload, RegisterRequestPayload, VerifyCodeRequestPayload } from "../utils/interface/auth.interface";
+import { AdminLoginRequestPayload, LoginRequestPayload, RegisterRequestPayload, VerifyCodeRequestPayload } from "../utils/interface/auth.interface";
 import redisClient from "../utils/redisHelper";
+import { compare, hash } from "bcrypt";
 
 
 interface RedisDataPayloadInterface {
@@ -57,11 +58,13 @@ const verifyCode = async (req: Request, res: Response) => {
     let redisDataPayload: RedisDataPayloadInterface = JSON.parse(isDataExistWithToken)
     if (redisDataPayload.code !== code) return throwError(AppString.invalid_otp, 400)
 
+    let hazedPassword = await hash(redisDataPayload.password, 10)
+
     let user = await prisma.user.create({
         data: {
             email: redisDataPayload.email,
             mobile: redisDataPayload.mobile,
-            password: redisDataPayload.password,
+            password: hazedPassword,
             registeredWith: redisDataPayload.type
         }
     })
@@ -96,7 +99,8 @@ const login = async (req: Request, res: Response) => {
     })
     if (!user?.id) return throwError(AppString.something_went_wrong, 422)
 
-    if (user.password !== password) return throwError(AppString.invalid_password, 400)
+    let isRightPassword = await compare(password, user.password)
+    if (!isRightPassword) return throwError(AppString.invalid_password, 400)
 
     let generateTokenByData: any = { id: user.id }
     let accessToken = commonUtils.generateJwtToken(generateTokenByData, 1)
@@ -111,9 +115,36 @@ const login = async (req: Request, res: Response) => {
     return res.json(successResponseHandler(AppString.user_logged_in, { accessToken, refreshToken }))
 }
 
+// ADMIN LOGIN API //
+const adminLogin = async (req: Request, res: Response) => {
+    let { email, password } = <AdminLoginRequestPayload>req.body
+
+    let isValidAdmin = await prisma.user.findFirst({
+        where: { email, role: 1 }
+    })
+    if (!isValidAdmin?.id) return throwError(AppString.something_went_wrong, 422)
+
+    let isRightPassword = await compare(password, isValidAdmin.password)
+    if (!isRightPassword) return throwError(AppString.invalid_password, 400)
+
+    let generateTokenByData: any = { id: isValidAdmin.id, role: 'admin' }
+    let accessToken = commonUtils.generateJwtToken(generateTokenByData, 1)
+    let refreshToken = commonUtils.generateJwtToken(generateTokenByData, 2)
+
+    await redisClient.setex(
+        `token:${accessToken}`,
+        60 * 60 * 24, // 1 day
+        JSON.stringify({ userId: isValidAdmin.id, refreshToken })
+    )
+
+    return res.json(successResponseHandler(AppString.user_logged_in, { accessToken, refreshToken }))
+}
+
+
 // Logout API //
 const logout = async (req: Request, res: Response) => {
     let accessToken = req.headers['authorization']?.split(' ')[1]
+    let { role } = req.user
 
     let tokenData = await redisClient.get(`token:${accessToken}`)
     if (!tokenData) return throwError(AppString.something_went_wrong, 401)
@@ -121,7 +152,8 @@ const logout = async (req: Request, res: Response) => {
     // Remove the token
     await redisClient.del(`token:${accessToken}`);
 
-    return res.json(successResponseHandler(AppString.user_logged_out))
+    let successMessage = [1, 2].includes(role) ? AppString.admin_logged_out : AppString.user_logged_out
+    return res.json(successResponseHandler(successMessage))
 }
 
 // ---------------------------- PRIVATE HELPER FUNCTION ---------------------------- //
@@ -135,5 +167,7 @@ export default {
     verifyCode,
 
     login,
+    adminLogin,
+
     logout
 }

@@ -25,6 +25,21 @@ const registerValidationSchema = Joi.object({
         })
 })
 
+const adminLoginValidationSchema = Joi.object({
+    email: Joi.string().email()
+        .messages({
+            'string.email': 'email is not valid.',
+            'string.empty': 'email is required.'
+        }),
+    password: Joi.string().pattern(PASSWORD_REGEX).min(8).required()
+        .messages({
+            'string.pattern.base': 'password is too easy. It must contain at least one letter and one number.',
+            'string.min': 'password should be at least 8 characters long.',
+            'string.empty': 'password is required.'
+        })
+})
+
 export default {
-    registerValidation: registerValidationSchema
+    registerValidation: registerValidationSchema,
+    adminLoginValidation: adminLoginValidationSchema
 }

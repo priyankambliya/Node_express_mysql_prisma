@@ -17,3 +17,8 @@ export interface LoginRequestPayload {
     mobile?: string
     password: string
 }
+
+export interface AdminLoginRequestPayload {
+    email: string
+    password: string
+}

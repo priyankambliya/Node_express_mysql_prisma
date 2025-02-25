@@ -1,5 +1,6 @@
 export interface RequestUserInterface {
-    id: any
+    id: number
+    role: number
     name?: string | null
     email?: string | null
     mobile?: string | null
